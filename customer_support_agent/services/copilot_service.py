@@ -15,6 +15,8 @@ from customer_support_agent.integrations.memory import (
 )
 from customer_support_agent.integrations.rag.chroma_kb import KnowledgeBaseService
 from customer_support_agent.integrations.tools.support_tools import get_support_tools
+from customer_support_agent.services.model_service import get_model_service
+from customer_support_agent.services.evaluation_service import get_eval_service
 
 
 
@@ -45,6 +47,8 @@ class SupportCopilot:
         except Exception as exc:
             self._memory_error = str(exc)
         self.rag = KnowledgeBaseService(settings=settings)
+        self.models = get_model_service()
+        self.evaluator = get_eval_service()
 
     
     def generate_draft(self, ticket: dict[str, Any], customer: dict[str, Any]) -> dict[str, Any]:
@@ -106,10 +110,19 @@ class SupportCopilot:
             )
         context_used["agent_runtime"] = "langchain_create_agent"
 
-        return {
+        # Specific model analysis
+        ai_analysis = self.models.analyze_claim_text(ticket.get("description", ""))
+
+        res = {
             "draft": draft_text,
             "context_used": context_used,
         }
+        res["context_used"]["ai_analysis"] = ai_analysis
+        
+        # Log evaluation
+        self.evaluator.log_generation(ticket_id=str(ticket.get("id")), memory_hits_count=len(memory_hits))
+        
+        return res
 
     def save_accepted_resolution(
         self,

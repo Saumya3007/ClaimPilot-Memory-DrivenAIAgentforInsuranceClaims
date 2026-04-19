@@ -59,6 +59,7 @@ class StructuredDraftContext(BaseModel):
     memory_hits: list[dict[str, Any]] = Field(default_factory=list)
     knowledge_hits: list[dict[str, Any]] = Field(default_factory=list)
     tool_calls: list[DraftToolCall | dict[str, Any]] = Field(default_factory=list)
+    ai_analysis: dict[str, Any] | None = None
     errors: list[str] = Field(default_factory=list)
 
 class DraftResponse(BaseModel):

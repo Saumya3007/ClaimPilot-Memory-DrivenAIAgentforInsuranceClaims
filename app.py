@@ -8,6 +8,25 @@ from typing import Any
 
 import requests
 import streamlit as st
+from prometheus_client import Counter, start_http_server
+
+# Metrics configuration - Start only once per process
+@st.cache_resource
+def start_metrics_server():
+    try:
+        start_http_server(8001)
+        return True
+    except Exception:
+        return False
+
+# Trigger the server start
+start_metrics_server()
+
+DASHBOARD_VIEWS = Counter("streamlit_dashboard_views_total", "Total views of the dashboard")
+CLAIMS_CREATED = Counter("streamlit_claims_created_total", "Total claims registered via UI")
+CLAIMS_APPROVED = Counter("streamlit_claims_approved_total", "Total AI recommendations approved via UI")
+
+DASHBOARD_VIEWS.inc()
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
@@ -296,6 +315,7 @@ with st.form("create_ticket_form"):
                     }
                 )
                 st.success(f"Claim #{created['id']} registered")
+                CLAIMS_CREATED.inc()
             except Exception as exc:
                 st.error(f"Claim registration failed: {exc}")
 
@@ -364,6 +384,7 @@ else:
                     updated = update_draft(draft_data["id"], edited_content, "accepted")
                     st.session_state[f"draft_{selected_ticket['id']}"] = updated
                     st.success("Recommendation approved and saved to claim memory")
+                    CLAIMS_APPROVED.inc()
                 except Exception as exc:
                     st.error(f"Failed to approve recommendation: {exc}")
 

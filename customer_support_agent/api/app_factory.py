@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from customer_support_agent.api.routers import (
     drafts_router,
@@ -10,6 +11,7 @@ from customer_support_agent.api.routers import (
     knowledge_router,
     memory_router,
     tickets_router,
+    evaluation_router,
 )
 from customer_support_agent.core.settings import Settings, ensure_directories, get_settings
 from customer_support_agent.repositories.sqlite import init_db
@@ -27,10 +29,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(title=resolved_settings.app_name, lifespan=lifespan)
 
+    # Instrument FastAPI for Prometheus scraping at /metrics
+    Instrumentator().instrument(app).expose(app)
+
     app.include_router(health_router)
     app.include_router(tickets_router)
     app.include_router(drafts_router)
     app.include_router(knowledge_router)
     app.include_router(memory_router)
+    app.include_router(evaluation_router)
 
     return app

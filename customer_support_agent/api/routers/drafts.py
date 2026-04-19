@@ -58,6 +58,14 @@ def update_draft_route(
                     draft_content=updated["content"],
                     context_used=context_used,
                 )
+                # Log feedback loop evaluation
+                from customer_support_agent.services.evaluation_service import get_eval_service
+                get_eval_service().log_approval(
+                    ticket_id=str(relation["ticket_id"]),
+                    original_draft=existing["content"],
+                    approved_draft=updated["content"],
+                    memory_used=context_used.get("memory_hits", [])
+                )
             except Exception:
                 # Draft acceptance should still succeed even if memory save fails.
                 pass

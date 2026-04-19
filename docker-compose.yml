@@ -1,6 +1,8 @@
 services:
+
   api:
     build: .
+    image: claimpilot-api:latest
     container_name: support-copilot-api
     command: .venv/bin/python main.py
     ports:
@@ -24,10 +26,12 @@ services:
 
   dashboard:
     build: .
+    image: claimpilot-dashboard:latest
     container_name: support-copilot-dashboard
     command: .venv/bin/streamlit run app.py --server.address 0.0.0.0 --server.port 8501
     ports:
       - "8501:8501"
+      - "8001:8001"
     env_file:
       - .env
     environment:
@@ -40,3 +44,28 @@ services:
     volumes:
       - ./data:/app/data
       - ./knowledge_base:/app/knowledge_base
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: support-copilot-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    networks:
+      - default
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: support-copilot-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - default
+
+volumes:
+  hf_cache:

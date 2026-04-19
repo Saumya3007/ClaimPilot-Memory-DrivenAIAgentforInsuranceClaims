@@ -81,7 +81,9 @@ An internal insurance-claims copilot that:
 - LangChain (`create_agent`)
 - LangGraph checkpoint memory (`InMemorySaver`)
 - Groq (`langchain-groq`) as LLM provider
-- LangMem + LangGraph InMemoryStore (current memory provider)
+- LangMem + LangGraph InMemoryStore (memory provider)
+- RoBERTa (`twitter-roberta-base-sentiment`) for sentiment-based urgency scoring
+- BART (`bart-large-mnli`) for zero-shot claim categorization
 - ChromaDB for knowledge-base vector retrieval
 - `langchain-text-splitters` for KB chunking
 

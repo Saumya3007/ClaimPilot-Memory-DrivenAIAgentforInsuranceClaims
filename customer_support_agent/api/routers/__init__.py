@@ -3,6 +3,7 @@ from customer_support_agent.api.routers.health import router as health_router
 from customer_support_agent.api.routers.knowledge import router as knowledge_router
 from customer_support_agent.api.routers.memory import router as memory_router
 from customer_support_agent.api.routers.tickets import router as tickets_router
+from customer_support_agent.api.routers.evaluation import router as evaluation_router
 
 __all__ = [
     "health_router",
@@ -10,4 +11,5 @@ __all__ = [
     "drafts_router",
     "knowledge_router",
     "memory_router",
+    "evaluation_router",
 ]

@@ -20,9 +20,18 @@ dependencies = [
   "requests",
   "email-validator",
   "google-genai",
+  "prometheus-fastapi-instrumentator",
   # Optional local embedding stack (disabled to keep EC2 image size low):
   # "sentence-transformers",
   # "torch",
+  "transformers>=5.5.4",
+  "sentence-transformers>=5.4.1",
+  "torch>=2.11.0",
+  "tqdm>=4.67.3",
+  "pandas>=2.3.3",
+  "numpy>=2.4.2",
+  "scikit-learn>=1.8.0",
+  "prometheus-client>=0.25.0",
 ]
 
 [tool.uv]
@@ -42,3 +51,7 @@ dev = [
   "playwright>=1.58.0",
   "pytest",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
