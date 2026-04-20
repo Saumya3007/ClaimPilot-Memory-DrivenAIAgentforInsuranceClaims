@@ -138,6 +138,19 @@ jobs:
             exit 1
           fi
 
+          echo "Checking system swap space..."
+          if [ $(sudo swapon --show | wc -l) -eq 0 ]; then
+            echo "No swap space found. Creating a 4GB swap file to prevent OOM errors..."
+            sudo fallocate -l 4G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=4096
+            sudo chmod 600 /swapfile
+            sudo mkswap /swapfile
+            sudo swapon /swapfile
+            echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+            echo "Swap creation complete."
+          else
+            echo "Swap space already configured."
+          fi
+
           if ! command -v docker >/dev/null 2>&1; then
             echo "Docker not found. Installing Docker..."
             if command -v apt-get >/dev/null 2>&1; then
