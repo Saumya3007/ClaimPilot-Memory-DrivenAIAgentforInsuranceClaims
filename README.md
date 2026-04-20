@@ -11,6 +11,9 @@ ClaimPilot is built using a **Modular Microservices Architecture** to ensure hig
 ### 1. High-Level Pipeline Flow
 1.  **FNOL Intake:** The Adjuster enters incident data (Date, Location, Loss Type, Description) into the **Streamlit Workbench**.
 2.  **Specialized NLP Analysis:** The **FastAPI Backend** intercepts the data and runs two specialized inferences:
+    
+![Architecture Visualization](docs/images/architecture.png)
+
     *   **Sentiment Engine (RoBERTa):** Detects claimant distress labels (Negative, Neutral, Positive).
     *   **Classification Engine (BART):** Performs zero-shot categorization into industry-standard claim types.
 3.  **Knowledge Retrieval (RAG):** The system queries a **ChromaDB Vector Store** containing policy documents and insurance regulations found in `knowledge_base/`.
@@ -24,6 +27,69 @@ ClaimPilot is built using a **Modular Microservices Architecture** to ensure hig
 *   **Streamlit UI (Port 8501):** The interactive adjuster workbench.
 *   **Prometheus (Port 9090):** The metrics collection engine.
 *   **Grafana (Port 3000):** The visualization dashboard for performance and fidelity.
+
+![Adjuster Dashboard Workbench](docs/images/dashboard.png)
+
+---
+
+## 🚦 Quick Start: Verification & Service Health
+
+### 1. How to Verify Health & Services
+Immediately after deployment (locally or on EC2), you can verify the status of the entire microservices stack:
+*   **FastAPI Health (GET):** `http://<IP>:8000/health`
+    *   *Role:* Returns `{"status":"ok"}`. This is used by the CI/CD pipeline to ensure the container is ready.
+*   **Swagger API Documentation (GET):** `http://<IP>:8000/docs`
+    *   *Role:* Provides interactive OpenAPI documentation. You can test every GET, POST, and PATCH request here directly.
+*   **Prometheus Console (GET):** `http://<IP>:9090`
+    *   *Role:* The monitoring engine. Click on `Status -> Targets` to ensure the API is "Up" and being scraped.
+*   **Grafana Dashboard (GET):** `http://<IP>:3000`
+    *   *Role:* The visualization layer. Open the "Insurance Adjuster Performance" dashboard to see Human Fidelity trends.
+*   **Streamlit UI (GET):** `http://<IP>:8501`
+    *   *Role:* The Adjuster Workbench where real insurance operations take place.
+
+### 2. Detailed Postman Testing Examples
+
+Execute these in order to simulate a full claim lifecycle and see the metrics in Grafana:
+
+#### A. Create a Ticket (POST)
+**Endpoint:** `POST http://localhost:8000/api/tickets`
+```json
+{
+    "customer_email": "real_driver@example.com",
+    "customer_name": "John Real",
+    "subject": "Serious Collision in Parking Lot",
+    "description": "I crashed my car while reversing. I AM FURIOUS because I called and no one helped. Totaled my car.",
+    "priority": "high",
+    "auto_generate": true
+}
+```
+*   *Observation:* Triggers RoBERTa (Sentiment) and BART (Categorization).
+
+#### B. Fetch AI Draft (GET)
+**Endpoint:** `GET http://localhost:8000/api/drafts/{id}`
+*   *Observation:* Returns the AI-generated coverage recommendation with sentiment metadata.
+
+#### C. Human Approval Loop (PATCH)
+**Endpoint:** `PATCH http://localhost:8000/api/drafts/{id}`
+```json
+{
+    "content": "Final adjuster decision: Approved per policy section 4B.",
+    "status": "accepted"
+}
+```
+*   *Observation:* Triggers the Jaccard Similarity calculation for the **Human Fidelity Score**.
+
+#### D. Fetch Fidelity Summary (GET)
+**Endpoint:** `GET http://localhost:8000/api/evaluation/summary`
+
+### 3. How to Verify the Human Fidelity Score (Step-by-Step)
+The **Human Fidelity Score** is the key indicator of AI accuracy. Here is how to trace it:
+1.  **Generate a Draft:** Submit a claim and let the AI generate a text recommendation.
+2.  **Adjuster Intervention:** Open the `PATCH /api/drafts/{id}` endpoint in Swagger or Postman.
+3.  **Perform an Edit:** Change the content of the draft (e.g., add or remove words) and set `status: "accepted"`.
+4.  **Automatic Calculation:** The system instantly runs the **Jaccard Similarity** algorithm in the background.
+5.  **View the Result (API):** Call `GET http://<IP>:8000/api/evaluation/summary`. You will see the `average_fidelity` value updated.
+6.  **Visualize (Grafana):** Navigate to `http://<IP>:3000`. The "Human Fidelity Trend" line chart will plot the new score, proving the AI is learning from your edits.
 
 ---
 
