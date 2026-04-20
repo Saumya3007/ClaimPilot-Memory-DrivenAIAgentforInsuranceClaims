@@ -120,10 +120,12 @@ jobs:
               "APP_DIR='${APP_DIR}' bash -s" <<'EOF_REMOTE'; then
           set -euo pipefail
 
-          if ! mkdir -p "$APP_DIR" 2>/dev/null; then
-            APP_DIR="$HOME/customer_support_agent"
-            mkdir -p "$APP_DIR"
-            echo "APP_DIR not writable, using fallback: $APP_DIR"
+          if ! sudo mkdir -p "$APP_DIR" 2>/dev/null || ! sudo chown -R "$USER:$USER" "$APP_DIR" 2>/dev/null; then
+            if [ ! -w "$APP_DIR" ]; then
+              APP_DIR="$HOME/customer_support_agent"
+              mkdir -p "$APP_DIR"
+              echo "APP_DIR not writable and sudo chown failed. Using fallback: $APP_DIR"
+            fi
           fi
 
           tar -xzf /tmp/customer_support_agent_release.tar.gz -C "$APP_DIR"
