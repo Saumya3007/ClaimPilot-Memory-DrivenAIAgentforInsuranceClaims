@@ -37,14 +37,14 @@ dependencies = [
 [tool.uv]
 package = false
 
-# Optional torch CPU index (enable only if uncommenting "torch" above):
-# [tool.uv.sources]
-# torch = { index = "pytorch-cpu" }
-#
-# [[tool.uv.index]]
-# name = "pytorch-cpu"
-# url = "https://download.pytorch.org/whl/cpu"
-# explicit = true
+# Force Torch CPU to save 3GB+ of disk space (critical for 30GB EC2 Free Tier)
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [dependency-groups]
 dev = [

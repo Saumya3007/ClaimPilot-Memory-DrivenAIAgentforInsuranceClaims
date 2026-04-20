@@ -4,6 +4,7 @@ services:
     build: .
     image: claimpilot-api:latest
     container_name: support-copilot-api
+    restart: unless-stopped
     command: .venv/bin/python main.py
     ports:
       - "8000:8000"
@@ -23,11 +24,12 @@ services:
     volumes:
       - ./data:/app/data
       - ./knowledge_base:/app/knowledge_base
+      - hf_cache:/root/.cache/huggingface
 
   dashboard:
-    build: .
-    image: claimpilot-dashboard:latest
+    image: claimpilot-api:latest
     container_name: support-copilot-dashboard
+    restart: unless-stopped
     command: .venv/bin/streamlit run app.py --server.address 0.0.0.0 --server.port 8501
     ports:
       - "8501:8501"
@@ -48,6 +50,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: support-copilot-prometheus
+    restart: unless-stopped
     ports:
       - "9090:9090"
     volumes:
@@ -58,6 +61,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: support-copilot-grafana
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:

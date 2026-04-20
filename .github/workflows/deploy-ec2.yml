@@ -174,11 +174,12 @@ jobs:
           fi
 
           echo "Reclaiming disk space before build..."
-          sudo docker system df || true
           $DOCKER_COMPOSE_CMD down --remove-orphans || true
-          sudo docker builder prune -af || true
-          sudo docker image prune -af || true
-          sudo docker container prune -f || true
+          
+          # This securely wipes all old images, build caches, and stopped containers
+          # without deleting your critical /data and hf_cache volumes! 
+          sudo docker system prune -af || true
+          
           sudo docker system df || true
 
           $DOCKER_COMPOSE_CMD up -d --build --force-recreate --remove-orphans
