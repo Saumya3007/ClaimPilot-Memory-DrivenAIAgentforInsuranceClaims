@@ -12,20 +12,23 @@ from prometheus_client import Counter, start_http_server
 
 # Metrics configuration - Start only once per process
 @st.cache_resource
-def start_metrics_server():
+def get_metrics():
+    # Attempt to start the server
     try:
         start_http_server(8001)
-        return True
     except Exception:
-        return False
+        pass # Already running
+        
+    dashboard_views = Counter("streamlit_dashboard_views_total", "Total views of the dashboard")
+    claims_created = Counter("streamlit_claims_created_total", "Total claims registered via UI")
+    claims_approved = Counter("streamlit_claims_approved_total", "Total AI recommendations approved via UI")
+    
+    return dashboard_views, claims_created, claims_approved
 
-# Trigger the server start
-start_metrics_server()
+# Initialize metrics
+DASHBOARD_VIEWS, CLAIMS_CREATED, CLAIMS_APPROVED = get_metrics()
 
-DASHBOARD_VIEWS = Counter("streamlit_dashboard_views_total", "Total views of the dashboard")
-CLAIMS_CREATED = Counter("streamlit_claims_created_total", "Total claims registered via UI")
-CLAIMS_APPROVED = Counter("streamlit_claims_approved_total", "Total AI recommendations approved via UI")
-
+# Increment view counter on page load
 DASHBOARD_VIEWS.inc()
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
