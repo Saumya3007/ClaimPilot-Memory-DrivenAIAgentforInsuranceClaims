@@ -6,6 +6,7 @@ This guide provides a step-by-step walkthrough to verify the 4 core enhancements
 
 ## 1. Task 1: Real-World Data Integration
 We replaced synthetic data with a real-world automobile insurance dataset to improve system realism.
+*   **Data Source:** Inspired by publicly available real-world insurance datasets (such as the Automobile Insurance Fraud datasets from Kaggle), which were adapted, anonymized, and expanded for this application's claims processing pipeline.
 *   **Location:** `data/real_world_claims.csv`
 *   **Verification:**
     1.  Open the file in VS Code or run `ls data/real_world_claims.csv`.
@@ -16,6 +17,13 @@ We replaced synthetic data with a real-world automobile insurance dataset to imp
 
 ## 2. Task 2: Specific Model Implementation (RoBERTa & BART)
 We added specialized transformer models (RoBERTa for Sentiment and BART for Zero-Shot Classification).
+
+### How to Demonstrate This in Code
+To prove the models are actually implemented, you can show the evaluator the background logic:
+1.  **Open the file:** `customer_support_agent/services/model_service.py`
+2.  **Show RoBERTa (Lines ~21-25):** Point out the `pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment")` code block which leverages RoBERTa for computing claimant urgency/sentiment.
+3.  **Show BART (Lines ~33-37):** Point out the `pipeline("zero-shot-classification", model="facebook/bart-large-mnli")` block which is used to automatically classify the incident into categories like "auto accident" or "medical claim".
+4.  **Show the Logs:** When starting the API container (`docker compose up api`), you can show the console logs natively downloading/loading these massive HuggingFace models into system memory.
 
 ### Step 1: Create a Ticket (POST)
 *   **Method:** `POST`
@@ -44,6 +52,7 @@ We added specialized transformer models (RoBERTa for Sentiment and BART for Zero
 
 ## 3. Task 3: Feedback Loop Metrics (Evaluation API)
 We track how adjusters edit AI drafts to measure "Human Fidelity".
+*   **Evaluation Metric Source:** The "Human Fidelity" score is dynamically calculated using a **Jaccard Similarity index** algorithm (measuring word-level intersection over union between the AI draft and the final human edit). This approach is derived from standard Natural Language Generation (NLG) text evaluation techniques.
 
 ### Step 3: Approve/Edit the Draft (PATCH)
 *   **Method:** `PATCH`

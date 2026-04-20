@@ -117,7 +117,7 @@ To deploy this entire update to EC2, follow these instructions carefully.
 1. Go to your AWS EC2 Console.
 2. Select your Instance -> **Security** -> **Security Groups**.
 3. Edit the Inbound rules to allow:
-   - **Port 8000** (FastAPI)
+   - **Port 8000** (FastAPI & Swagger UI)
    - **Port 8501** (Streamlit Interface)
    - **Port 3000** (Grafana Interface)
    - **Port 9090** (Prometheus Interface - Optional, mostly for debugging)
