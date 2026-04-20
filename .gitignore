@@ -27,15 +27,9 @@ wheels/
 .installed.cfg
 *.egg
 
-# Runtime data
-data/
-*.db
-*.sqlite
-*.sqlite3
 
-# ChromaDB / vector stores
-chroma_rag/
-chroma_mem0/
+
+
 
 # IDE
 .idea/

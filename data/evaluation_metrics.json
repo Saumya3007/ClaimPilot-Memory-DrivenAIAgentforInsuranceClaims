@@ -1,0 +1,18 @@
+{
+  "total_drafts_generated": 2,
+  "total_drafts_approved": 1,
+  "total_edits_count": 1,
+  "total_memory_hits": 0,
+  "memory_relevance_scores": [],
+  "human_fidelity_scores": [
+    0.03125
+  ],
+  "history": [
+    {
+      "timestamp": 1776616263.893099,
+      "ticket_id": "5",
+      "fidelity": 0.03125,
+      "memory_hits": 2
+    }
+  ]
+}
